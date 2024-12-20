@@ -9,6 +9,7 @@ class Company(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(60), unique=True)
+    address = Column(String(100), nullable=True)
     created_at = Column(DateTime, default=func.now())
 
     def __repr__(self) -> str:
