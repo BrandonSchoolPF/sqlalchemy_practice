@@ -49,6 +49,7 @@ Note that this is meant for Postgres, havent used anything else
    ```bash
    pip install -r requirements.txt
    ```
+   __If you cannot install psycopg2, sudo or brew postgres__
 
 2. Initialize Alembic:
    ```bash
@@ -56,8 +57,11 @@ Note that this is meant for Postgres, havent used anything else
    ```
 
 3. Update the database connection string in `alembic.ini`.
+   ```python
+   sqlalchemy.url = postgresql://postgres:secret@localhost/{db_name_here}
+   ```
 
-4. Run migrations:
+4. To create a revision: 
    ```bash
-   alembic upgrade head
+   alembic revision -m 'your_message'
    ```
