@@ -1,21 +1,11 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from app import models
-
-
-models.Base.metadata.create_all(bind=engine)
-
-
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from app.schemas import CompanyCreate
+from app.database import SessionLocal
+from app.models import Company
 app = FastAPI()
 
-app.mount("/static", StaticFiles(directory="static"), name="static")
-
-
-templates = Jinja2Templates(directory="templates")
-
-#Dependecy
+# Dependency to get a database session
 def get_db():
     db = SessionLocal()
     try:
@@ -23,8 +13,19 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/items/{id}", response_class=HTMLResponse)
-async def read_item(request: Request, id: str):
-    return templates.TemplateResponse(
-        request=request, name="item.html", context={"id": id}
-    )
+@app.post("/companies/", response_model=CompanyCreate)
+def create_company(company: CompanyCreate, db: Session = Depends(get_db)):
+    # Check if company exists
+    db_company = db.query(Company).filter(Company.name == company.name).first()
+    if db_company:
+        raise HTTPException(status_code=400, detail="Company already exists")
+
+    # Create new company using data from Pydantic model
+    new_company = Company(name=company.name, address=company.address)
+    
+    # Add and commit the new company
+    db.add(new_company)
+    db.commit()
+    db.refresh(new_company)
+
+    return new_company

@@ -126,3 +126,49 @@ Note that this is meant for Postgres, havent used anything else
    ```bash
    docker exec -ti {container_name} psql -U postgres -d {DB_name}
    ```
+
+## Connecting SQLAlchemy to Postgres using Fast API
+SQLAlchemy is just a tool to get SQL statements into Python. Actions like SELECT, JOIN, etc..
+have been built into SQLAlchemy. FastAPI is an API builder which allows the user to create HTTP requests (POST, GET).
+FastAPI combined with SQLAlchemy can allow the user to create queries or inserts through API requests through FastAPI
+
+### Setting up DB Connection with SQLAlchemy
+
+With SQLAlchemy, the objects required to speak with any database are engine, SesionLocal, and Declarative base.
+
+* __engine()__
+
+   The engine in SQLAlchemy is the starting point for interacting with your database. It provides the interface to communicate with your database and allows you to execute SQL queries.
+
+   To create an engine, use the create_engine function, which takes a database URL (connection string) as an argument. The connection string should contain details like the database type, username, password, host, and database name.
+
+   Example of creating an engine:
+
+   ```python
+   from sqlalchemy import create_engine
+
+   # Example connection string for PostgreSQL
+   DATABASE_URL = "postgresql://username:password@localhost/dbname"
+
+   # Create the engine
+   engine = create_engine(DATABASE_URL, echo=True)  # `echo=True` will log all SQL queries for debugging
+   ```
+
+* __SessionLocal__
+
+   SQLAlchemy uses sessions to manage transactions with the database. A session provides a "workspace" for the application where queries, inserts, updates, and deletes are stored before being committed to the database.
+
+   You can create a SessionLocal class to manage database sessions. It is common to use a sessionmaker to create a session class bound to the engine.
+
+   Example of setting up SessionLocal:
+
+   ```python
+   from sqlalchemy.orm import sessionmaker
+
+   # Create a session factory bound to the engine
+   SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+   ```
+
+   * ```autocommit=False```: Disables automatic commit after each operation. This gives you more control over when to commit or rollback transactions.
+   * ```autoflush=False```: Disables automatic flushing of the session after each query. This can be helpful in complex operations where you want to flush explicitly.
+   * ```bind=engine```: Binds the session to the engine you created earlier, which is required for the session to communicate with the database.
