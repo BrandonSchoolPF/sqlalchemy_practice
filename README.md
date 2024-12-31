@@ -221,3 +221,32 @@ Here’s a summary of the most commonly used HTTP methods in web development:
 
 Each HTTP method serves a distinct purpose and is crucial for performing CRUD (Create, Read, Update, Delete) operations in web applications.
 
+### __Installing Dependencies__
+
+The libraries needed will be FastAPI and uvicorn:
+
+```
+pip install fastapi 
+pip install uvicorn
+```
+
+### __Sample Template__
+Below is a sample template of how the beginning of the app should look like: 
+
+```python
+from fastapi import FastAPI, Depends, HTTPException
+from sqlalchemy.orm import Session
+from your.schema.file.here import schema #If you are using pydantic for schemas
+from your.session.local.here import SessionLocal
+from your.db.model.here import model
+app = FastAPI()
+
+# Dependency to get a database session
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+```
+
