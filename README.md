@@ -127,12 +127,14 @@ Note that this is meant for Postgres, havent used anything else
    docker exec -ti {container_name} psql -U postgres -d {DB_name}
    ```
 
-## Connecting SQLAlchemy to Postgres using Fast API
+# Connecting SQLAlchemy to Postgres using Fast API
 SQLAlchemy is just a tool to get SQL statements into Python. Actions like SELECT, JOIN, etc..
 have been built into SQLAlchemy. FastAPI is an API builder which allows the user to create HTTP requests (POST, GET).
 FastAPI combined with SQLAlchemy can allow the user to create queries or inserts through API requests through FastAPI
 
-### Setting up DB Connection with SQLAlchemy
+__*Note that you will not need to manually push new tables into postgres with SQLAlchemy if you are using alembic to auto migrate the tables*__
+
+## __Setting up DB Connection with SQLAlchemy__
 
 With SQLAlchemy, the objects required to speak with any database are engine, SesionLocal, and Declarative base.
 
@@ -172,3 +174,50 @@ With SQLAlchemy, the objects required to speak with any database are engine, Ses
    * ```autocommit=False```: Disables automatic commit after each operation. This gives you more control over when to commit or rollback transactions.
    * ```autoflush=False```: Disables automatic flushing of the session after each query. This can be helpful in complex operations where you want to flush explicitly.
    * ```bind=engine```: Binds the session to the engine you created earlier, which is required for the session to communicate with the database.
+
+* __declarative_base__
+
+   SQLAlchemy uses declarative base to define the structure of your tables. It allows you to define your database models as Python classes. These classes should inherit from a base class, typically called ```Base```.
+
+   First, create a Declarative Base class using ```declarative_base()``` from SQLAlchemy:
+
+   ```python
+   from sqlalchemy.ext.declarative import declarative_base
+
+   # Create the declarative base
+   Base = declarative_base()
+   ```
+
+Here is a template of how the db connection with SQLAlchemy should look like: 
+```python
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
+
+# 1. Set up engine (PostgreSQL in this example)
+DATABASE_URL = "postgresql://username:password@localhost/dbname"
+engine = create_engine(DATABASE_URL, echo=True)
+
+# 2. Create SessionLocal class to manage sessions
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+# 3. Create a declarative base
+Base = declarative_base()
+```
+
+## __Creating a FastAPI App__
+
+This portion will go over creating the FastAPI app which is the entrypoint for communications between the DB and SQLAlchemy.
+
+Here’s a summary of the most commonly used HTTP methods in web development:
+
+| HTTP Method | Purpose                                    | Description |
+|-------------|--------------------------------------------|-------------|
+| `GET`       | Retrieve data                              | Requests data from the server (e.g., a list of users). |
+| `POST`      | Create a new resource                      | Sends data to the server to create a new resource. |
+| `PUT`       | Update an existing resource                | Replaces an existing resource with new data. |
+| `PATCH`     | Partially update a resource                | Updates a resource with partial data (only modified fields). |
+| `DELETE`    | Delete a resource                          | Removes a resource from the server. |
+
+Each HTTP method serves a distinct purpose and is crucial for performing CRUD (Create, Read, Update, Delete) operations in web applications.
+
