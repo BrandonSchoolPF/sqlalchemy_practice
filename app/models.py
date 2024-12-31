@@ -14,3 +14,15 @@ class Company(Base):
 
     def __repr__(self) -> str:
         return f"id: {self.id}, name: {self.name}"
+
+
+class test(Base):
+    __tablename__='test'
+
+    id = Column(Integer, primary_key=True)
+    address = Column(String(60), unique=True)
+    children = Column(String(100), nullable=True)
+    gender = Column(String(20), nullable=False)
+
+    def __repr__(self) -> str:
+        return f"id: {self.id}, name: {self.name}"

@@ -1,0 +1,2 @@
+docker run --name sqlal-demo -p 5432:5432 -e POSTGRES_PASSWORD=secret -d postgres
+docker exec -ti sqlal-demo createdb -U postgres test_db
