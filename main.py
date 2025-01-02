@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI
 from src.insert.insert_routes import insert_router
 
 
