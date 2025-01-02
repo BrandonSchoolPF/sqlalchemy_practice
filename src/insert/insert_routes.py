@@ -3,19 +3,10 @@ from sqlalchemy.orm import Session
 from app.schemas import CompanyCreate
 from app.database import SessionLocal
 from app.models import Company
-
+from app.get_db import get_db
 
 
 insert_router = APIRouter()
-
-
-# Dependency to get a database session
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 
 @insert_router.post("/companies", response_model=CompanyCreate)
@@ -31,5 +22,5 @@ def create_company(company: CompanyCreate, db: Session = Depends(get_db)):
         db.refresh(new_company)
 
         return new_company
-    except as exc:
+    except Exception as exc:
         print('Could not add... Error: %s', exc)
